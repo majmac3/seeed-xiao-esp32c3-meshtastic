@@ -7,7 +7,11 @@
 #define LED_PIN 2     // GPIO2 (D0)
 #define LED_STATE_ON 1
 
-#define HAS_SCREEN 0
+#define HAS_SCREEN 1
+#define USE_SSD1306
+
+#define I2C_SDA 21 // GPIO21 (D6)
+#define I2C_SCL 20 // GPIO20 (D7)
 #define HAS_GPS 0
 #undef GPS_RX_PIN
 #undef GPS_TX_PIN
