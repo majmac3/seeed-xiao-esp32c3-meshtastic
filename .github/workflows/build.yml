@@ -1,0 +1,48 @@
+name: Build XIAO ESP32C3 OLED Firmware
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Pobierz pliki wariantu z tego repozytorium
+        uses: actions/checkout@v4
+        with:
+          path: custom_variant
+
+      - name: Pobierz oficjalny kod Meshtastic Firmware
+        uses: actions/checkout@v4
+        with:
+          repository: meshtastic/firmware
+          ref: v2.5.18.89ebafc
+          submodules: recursive
+          path: firmware
+
+      - name: Skopiuj wariant XIAO ESP32C3 z włączonym OLED
+        run: |
+          mkdir -p firmware/variants/esp32c3/seeed_xiao_esp32c3_sx1262
+          cp custom_variant/variant/* firmware/variants/esp32c3/seeed_xiao_esp32c3_sx1262/
+
+      - name: Zainstaluj Python i PlatformIO
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Skompiluj firmware
+        working-directory: firmware
+        run: |
+          pip install -U platformio
+          pio pkg install -e seeed_xiao_esp32c3_sx1262
+          pio run -e seeed_xiao_esp32c3_sx1262
+
+      - name: Udostępnij gotowe pliki .bin do pobrania
+        uses: actions/upload-artifact@v4
+        with:
+          name: meshtastic-xiao-esp32c3-oled-firmware
+          path: |
+            firmware/.pio/build/seeed_xiao_esp32c3_sx1262/firmware.bin
+            firmware/.pio/build/seeed_xiao_esp32c3_sx1262/firmware.factory.bin
